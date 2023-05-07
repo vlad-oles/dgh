@@ -59,7 +59,7 @@ def dis(S, X, Y):
 
 
 def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
-       tol=1e-8, return_fg=False, verbose=False, rnd=None):
+       tol=1e-8, return_fg=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -72,11 +72,12 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
-    :param verbose: whether to print out restarts (bool)
+    :param verbose: 0=no output, 1=print restart results, 2=print iterations
     :return: dGH(X, Y), f [optional], g [optional]
     """
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+    assert (X == X.T).all() and (Y == Y.T).all(), 'distance matrices are not symmetric'
 
     # Find c for the first minimization if needed.
     if c_first is not None:
@@ -131,7 +132,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
             best_f, best_g = S_to_fg(S, n, m)
             min_dis_R = dis_R
 
-        if verbose:
+        if verbose >= 1:
             print(f'finished restart {restart_idx}: ½dis(R)={dis_R/2:.4f}, '
                   f'min ½dis(R)={min_dis_R/2:.4f}')
 
