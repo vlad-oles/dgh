@@ -1,6 +1,20 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.0.4 (May 7 2023)
+
+### Fix
+
+- Allowed for importing (oops)
+- Corrected dimensions in `fg_to_R`
+
+### Feature
+
+- Different levels of verbosity
+
+### Documentation
+
+- Expanded README.md
 
 ## v0.0.3 (May 6 2023)
 
