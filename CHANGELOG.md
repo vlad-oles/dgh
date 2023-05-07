@@ -1,6 +1,13 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.0.5 (May 7 2023)
+
+### Fix
+
+- Removed redundant `__init__.py`
+- Renamed source directory
+
 ## v0.0.4 (May 7 2023)
 
 ### Fix
