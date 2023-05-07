@@ -37,7 +37,7 @@ Y += Y.T
 dgh.ub(X, Y)
 ```
 
-Increasing the budget of Frank-Wolfe algorithm iterations, and thus the number of restarts, allocated for the search (the default budget is 100):
+Increasing the budget of Frank-Wolfe iterations, and thus the number of restarts, allocated for the search (the default budget is 100):
 
 ```d = dgh.ub(X, Y, iter_budget=1000)```
 
