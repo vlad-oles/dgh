@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dgh"
+version = "0.0.2"
+authors = [
+  {name="Vladyslav Oles", email="vlad.oles@proton.me"},
+]
+description = "Computing the Gromov–Hausdorff distance"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/pypa/dgh"
+"Bug Tracker" = "https://github.com/pypa/dgh/issues"
