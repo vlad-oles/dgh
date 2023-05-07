@@ -1,7 +1,7 @@
 import numpy as np
 
+from constants import DEFAULT_SEED
 
-DEFAULT_SEED = 666
 
 def rnd_S(n, m, rnd=None):
     """

@@ -1,9 +1,10 @@
 import numpy as np
 import scipy.optimize as opt
 
-from mappings import rnd_S, center, S_to_fg, S_to_R, DEFAULT_SEED
+from mappings import rnd_S, center, S_to_fg, S_to_R
 from fw import make_frank_wolfe_solver
 from auxiliary import arrange_distances
+from constants import DEFAULT_SEED, MAX_C
 
 
 def find_c(phi, X, Y):
@@ -110,13 +111,15 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
             # Solve the minimization problem.
             S, used_iter = fw(S0=S, max_iter=iter_budget)
 
+            # Terminate if no iterations were made, run out of iteration budget,
+            # or next c will exceed floating point arithmetic limits.
+            stopping = iter_budget == used_iter or used_iter == 0 or c > MAX_C
+
             # Move to the next minimization obtained by squaring c.
             iter_budget -= used_iter
             fw_idx += 1
-            c **= 2
-
-            # Terminate if no iterations were made or run out of iteration budget.
-            stopping = iter_budget == 0 or used_iter == 0
+            with np.errstate(over='ignore'):
+                c **= 2
 
         # Project the solution to the set of correspondences and find the
         # resulting distortion.
