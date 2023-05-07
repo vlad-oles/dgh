@@ -6,7 +6,7 @@ from auxiliary import arrange_distances
 
 
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
-                      tol=1e-8, max_iter=10, verbose=False):
+                      tol=1e-8, max_iter=10, verbose=0):
     """
     Minimize smoothed distortion over the bi-mapping polytope 𝓢.
 
@@ -17,7 +17,7 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
     :param S0: starting point in 𝓢 (2d-array)
     :param tol: tolerance for measuring rate of descent (float)
     :param max_iter: maximum number of iterations (int)
-    :param verbose: whether to print out iterations (bool)
+    :param verbose: :param verbose: {0,1}=no output, 2=print iterations
     :return: solution, number of iterations performed
     """
     S = S0.copy()
@@ -35,7 +35,7 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
             critical_gammas.add(global_gamma)
         gamma = min(critical_gammas, key=lambda x: obj(S + x*D))
 
-        if verbose:
+        if verbose >= 2:
             print(f'  iter {iter}: obj(S)={obj(S):.4f}, γ={gamma:.5f}')
 
         # Stop if the rate of descent is too small or if the line search stalls.
