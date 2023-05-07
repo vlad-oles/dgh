@@ -57,7 +57,7 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, phi_first=.1, c_first=None, n_restarts=1, center_start=False, max_iter=10,
+def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
        tol=1e-8, return_fg=False, verbose=False, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
@@ -69,13 +69,13 @@ def ub(X, Y, phi_first=.1, c_first=None, n_restarts=1, center_start=False, max_i
         first minimization problem (float)
     :param c_first: exponentiation base ∈ (1, ∞) for smoothing the distortion
         in the first minimization problem (float)
+    :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
-    :param n_restarts: number of restarts for the minimization sequence (int)
-    :param max_iter: maximum number of Frank-Wolfe iterations (int)
     :param verbose: whether to print out restarts (bool)
     :return: dGH(X, Y), f [optional], g [optional]
     """
     n, m = len(X), len(Y)
+    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
 
     # Find c for the first minimization if needed.
     if c_first is not None:
@@ -86,53 +86,53 @@ def ub(X, Y, phi_first=.1, c_first=None, n_restarts=1, center_start=False, max_i
                                    f'(phi_first={phi_first})'
         c_first = find_c(phi_first, X, Y)
 
-    # Initialize the starting points.
-    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
-    S0s = [rnd_S(n, m, rnd) for _ in range(n_restarts)]
-    if center_start:
-        S0s[0] = center(n, m)
-
-    # Find a solution for each of the starting points.
+    # Find minima from new restarts until run out of iteration budget.
     min_dis_R = np.inf
     fw_seq = []
-    for restart, S in enumerate(S0s):
+    restart_idx = 0
+    while iter_budget > 0:
+        # Initialize new restart.
+        S = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
         fw_idx = 0
         c = c_first
-        remaining_iter = max_iter
+
         # Run a sequence of FW solvers using solutions as subsequent warm starts.
-        while remaining_iter > 0:
+        stopping = False
+        while not stopping:
             # Set up next FW solver in the sequence if needed.
             try:
                 fw = fw_seq[fw_idx]
             except IndexError:
-                fw = make_frank_wolfe_solver(X, Y, c, max_iter=max_iter, tol=tol, verbose=verbose)
+                fw = make_frank_wolfe_solver(
+                    X, Y, c, tol=tol, verbose=verbose)
                 fw_seq.append(fw)
 
             # Solve the minimization problem.
-            S, used_iter = fw(S0=S, max_iter=remaining_iter)
-
-            # Terminate if no iterations were made.
-            if used_iter == 0:
-                break
+            S, used_iter = fw(S0=S, max_iter=iter_budget)
 
             # Move to the next minimization obtained by squaring c.
-            remaining_iter -= used_iter
+            iter_budget -= used_iter
             fw_idx += 1
             c **= 2
+
+            # Terminate if no iterations were made or run out of iteration budget.
+            stopping = iter_budget == 0 or used_iter == 0
 
         # Project the solution to the set of correspondences and find the
         # resulting distortion.
         R = S_to_R(S, n, m)
         dis_R = dis(R, X, Y)
 
-        # Update the best distortion achieved across all restarts.
+        # Update the best distortion achieved from all restarts.
         if dis_R < min_dis_R:
             best_f, best_g = S_to_fg(S, n, m)
             min_dis_R = dis_R
 
         if verbose:
-            print(f'finished restart {restart}: ½dis(R)={dis_R/2:.4f}, '
+            print(f'finished restart {restart_idx}: ½dis(R)={dis_R/2:.4f}, '
                   f'min ½dis(R)={min_dis_R/2:.4f}')
+
+        restart_idx += 1
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 
