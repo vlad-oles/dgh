@@ -59,7 +59,7 @@ def fg_to_R(f, g):
     F = np.identity(m)[f]
     G = np.identity(n)[g]
 
-    R = np.block([[F, mxm_zeros], [nxn_zeros, G]])
+    R = np.block([[F, nxn_zeros], [mxm_zeros, G]])
 
     return R
 
