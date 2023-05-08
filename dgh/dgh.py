@@ -75,9 +75,15 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     :param verbose: 0=no output, 1=print restart results, 2=print iterations
     :return: dGH(X, Y), f [optional], g [optional]
     """
+    # Check that the distances satisfy the metric properties minus the triangle inequality.
+    assert (X >= 0).all() and (Y >= 0).all(), 'distance matrices have negative entries'
+    assert (np.diag(X) == 0).all() and (np.diag(Y) == 0).all(),\
+        'distance matrices have non-zeros on the main diagonal'
+    assert (X == X.T).all() and (Y == Y.T).all(), 'distance matrices are not symmetric'
+
+    # Initialize tools for generating starting points.
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
-    assert (X == X.T).all() and (Y == Y.T).all(), 'distance matrices are not symmetric'
 
     # Find c for the first minimization if needed.
     if c_first is not None:
