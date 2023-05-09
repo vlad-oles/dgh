@@ -10,21 +10,21 @@ Installing the package from Python Package Index:
 
 ```$ pip install dgh```
 
-Computing $d_\text{GH}(X, Y)$ where $X$ is the vertices of a regular 4-simplex and $Y$ is (a shortest path-based metric representation of) the star graph of order 6:
+Computing $d_\text{GH}(X, Y)$ where $X$ is the vertices of a regular 4-simplex of diameter $\frac{3}{2}$ and $Y$ is (a shortest path-based metric representation of) the star graph of order 6:
 
 ```
 import numpy as np
-import dgh
+from dgh import dgh
 
-# Set up distance matrix for the simplex of diameter ½.
-X = np.array([[0, .5, .5, .5, .5],
-              [0, 0, .5, .5, .5],
-              [0, 0, 0, .5, .5],
-              [0, 0, 0, 0, .5],
+# Set distance matrix for the simplex.
+X = np.array([[0, 1.5, 1.5, 1.5, 1.5],
+              [0, 0, 1.5, 1.5, 1.5],
+              [0, 0, 0, 1.5, 1.5],
+              [0, 0, 0, 0, 1.5],
               [0, 0, 0, 0, 0]])
 X += X.T
 
-# Set up distance matrix for the star graph.
+# Set distance matrix for the star graph.
 Y = np.array([[0, 1, 1, 1, 1, 1],
               [0, 0, 2, 2, 2, 2],
               [0, 0, 0, 2, 2, 2],
