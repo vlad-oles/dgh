@@ -3,7 +3,7 @@ import scipy.optimize as opt
 
 from .mappings import rnd_S, center, S_to_fg, S_to_R
 from .fw import make_frank_wolfe_solver
-from .auxiliary import arrange_distances
+from .spaces import diam, rad, arrange_distances
 from .constants import DEFAULT_SEED, MAX_C
 
 
@@ -59,7 +59,7 @@ def dis(S, X, Y):
 
 
 def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
-       tol=1e-8, return_fg=False, verbose=0, rnd=None):
+       lb=0, tol=1e-8, return_fg=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -72,6 +72,9 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
+    :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
+    :param tol: tolerance to use when evaluating convergence (float)
+    :param return_fg: whether to return the optimal pair of mappings (bool)
     :param verbose: 0=no output, 1=print restart results, 2=print iterations
     :return: dGH(X, Y), f [optional], g [optional]
     """
@@ -85,9 +88,14 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
 
+    # Update lower bound using the radius and diameter differences.
+    diam_X, diam_Y = map(diam, [X, Y])
+    rad_X, rad_Y = map(rad, [X, Y])
+    lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
+
     # Scale all distances to prevent overflow.
-    d_max = max(X.max(), Y.max())
-    X, Y = [Z.copy() / d_max for Z in [X, Y]]
+    d_max = max(diam_X, diam_Y)
+    X, Y = map(lambda Z: Z.copy()/d_max, [X, Y])
 
     # Find c for the first minimization if needed.
     if c_first is not None:
@@ -109,8 +117,8 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         c = c_first
 
         # Run a sequence of FW solvers using solutions as subsequent warm starts.
-        stopping = False
-        while not stopping:
+        solving_for_next_c = True
+        while solving_for_next_c:
             # Set up next FW solver in the sequence if needed.
             try:
                 fw = fw_seq[fw_idx]
@@ -124,7 +132,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
 
             # Terminate if no iterations were made, run out of iteration budget,
             # or next c will exceed floating point arithmetic limits.
-            stopping = iter_budget == used_iter or used_iter == 0 or c > MAX_C
+            solving_for_next_c = 0 < used_iter < iter_budget and c < MAX_C
 
             # Move to the next minimization obtained by squaring c.
             iter_budget -= used_iter
@@ -147,6 +155,10 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
                   f'min ½dis(R)={min_dis_R/2:.4f}')
 
         restart_idx += 1
+
+        # Terminate if achieved lower bound.
+        if min_dis_R <= lb:
+            break
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 

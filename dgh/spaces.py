@@ -1,6 +1,26 @@
 import numpy as np
 
 
+def diam(X):
+    """
+    Find the diameter of a metric space X.
+
+    :param X: distance matrix of X (2d-array)
+    :return: diameter (float)
+    """
+    return X.max()
+
+
+def rad(X):
+    """
+    Find the radius of a metric space X.
+
+    :param X: distance matrix of X (2d-array)
+    :return: radius (float)
+    """
+    return np.min(X.max(axis=0))
+
+
 def arrange_distances(X, Y):
     """
     Arrange distances of X and Y in block matrices used in the computations.
