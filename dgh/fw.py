@@ -1,8 +1,8 @@
 import numpy as np
 from functools import partial
 
-from mappings import fg_to_R
-from spaces import arrange_distances
+from .mappings import fg_to_R
+from .spaces import arrange_distances
 
 
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,

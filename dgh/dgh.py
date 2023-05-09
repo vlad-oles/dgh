@@ -96,6 +96,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     # Scale all distances to prevent overflow.
     d_max = max(diam_X, diam_Y)
     X, Y = map(lambda Z: Z.copy()/d_max, [X, Y])
+    lb /= d_max
 
     # Find c for the first minimization if needed.
     if c_first is not None:
@@ -105,6 +106,8 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         assert 0 < phi_first < .5, f'starting non-convexity UB must be < 0.5 ' \
                                    f'(phi_first={phi_first})'
         c_first = find_c(phi_first, X, Y)
+
+    print(f'lb={lb}, c_first={c_first}')#!!
 
     # Find minima from new restarts until run out of iteration budget.
     min_dis_R = np.inf
@@ -152,7 +155,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
 
         if verbose >= 1:
             print(f'finished restart {restart_idx}: ½dis(R)={dis_R/2:.4f}, '
-                  f'min ½dis(R)={min_dis_R/2:.4f}')
+                  f'min ½dis(R)={min_dis_R/2:.4f}, remaining iter={iter_budget}')
 
         restart_idx += 1
 

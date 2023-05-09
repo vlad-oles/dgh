@@ -1,6 +1,6 @@
 import numpy as np
 
-from constants import DEFAULT_SEED
+from .constants import DEFAULT_SEED
 
 
 def rnd_S(n, m, rnd=None):
