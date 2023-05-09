@@ -59,7 +59,7 @@ def dis(S, X, Y):
 
 
 def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
-       lb=0, tol=1e-8, return_fg=False, verbose=0, rnd=None):
+       lb=0, tol=1e-8, validate_tri_ineq=False, return_fg=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -74,6 +74,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
     :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
     :param tol: tolerance to use when evaluating convergence (float)
+    :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param return_fg: whether to return the optimal pair of mappings (bool)
     :param verbose: 0=no output, 1=print restart results, 2=print iterations
     :return: dGH(X, Y), f [optional], g [optional]
@@ -83,6 +84,9 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     assert (np.diag(X) == 0).all() and (np.diag(Y) == 0).all(),\
         'distance matrices have non-zeros on the main diagonal'
     assert (X == X.T).all() and (Y == Y.T).all(), 'distance matrices are not symmetric'
+    if validate_tri_ineq:
+        assert validate_tri_ineq(X) and validate_tri_ineq(Y),\
+            "triangle inequality doesn't hold"
 
     # Initialize tools for generating starting points.
     n, m = len(X), len(Y)
@@ -106,8 +110,6 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         assert 0 < phi_first < .5, f'starting non-convexity UB must be < 0.5 ' \
                                    f'(phi_first={phi_first})'
         c_first = find_c(phi_first, X, Y)
-
-    print(f'lb={lb}, c_first={c_first}')#!!
 
     # Find minima from new restarts until run out of iteration budget.
     min_dis_R = np.inf

@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import permutations
 
 
 def diam(X):
@@ -19,6 +20,20 @@ def rad(X):
     :return: radius (float)
     """
     return np.min(X.max(axis=0))
+
+
+def validate_tri_ineq(X):
+    """
+    Validates that the distance on X obeys the triangle inequality.
+
+    :param X: distance matrix of X (2d-array)
+    :return: whether the triangle inequality holds (bool)
+    """
+    for i, j, k in permutations(range(len(X)), 3):
+        if X[i, j] > X[j, k] + X[k, i]:
+            return False
+
+    return True
 
 
 def arrange_distances(X, Y):
