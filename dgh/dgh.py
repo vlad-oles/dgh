@@ -1,10 +1,10 @@
 import numpy as np
 import scipy.optimize as opt
 
-from mappings import rnd_S, center, S_to_fg, S_to_R
-from fw import make_frank_wolfe_solver
-from auxiliary import arrange_distances
-from constants import DEFAULT_SEED, MAX_C
+from .mappings import rnd_S, center, S_to_fg, S_to_R
+from .fw import make_frank_wolfe_solver
+from .auxiliary import arrange_distances
+from .constants import DEFAULT_SEED, MAX_C
 
 
 def find_c(phi, X, Y):
