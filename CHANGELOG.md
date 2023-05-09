@@ -1,6 +1,22 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.0.6 (May 9 2023)
+
+### Feature
+
+- Enabled setting lower bound to avoid redundant iterations
+- Added flag for validating the triangle inequality
+
+### Fix
+
+- Fixed import structure
+- Distances are scaled to prevent overflow
+
+### Documentation
+
+- Corrected library import in README.md
+
 ## v0.0.5 (May 7 2023)
 
 ### Fix
