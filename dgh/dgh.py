@@ -85,6 +85,10 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
 
+    # Scale all distances to prevent overflow.
+    d_max = max(X.max(), Y.max())
+    X, Y = [Z.copy() / d_max for Z in [X, Y]]
+
     # Find c for the first minimization if needed.
     if c_first is not None:
         assert c_first > 1, f'starting exponentiation base must be > 1 (c_first={c_first} )'
@@ -129,9 +133,9 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
                 c **= 2
 
         # Project the solution to the set of correspondences and find the
-        # resulting distortion.
+        # resulting distortion on the original scale.
         R = S_to_R(S, n, m)
-        dis_R = dis(R, X, Y)
+        dis_R = dis(R, X, Y) * d_max
 
         # Update the best distortion achieved from all restarts.
         if dis_R < min_dis_R:
