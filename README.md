@@ -18,7 +18,7 @@ Computing $d_\text{GH}(X, Y)$ where $X$ is the vertices of a tall narrow rectang
 
 ```
 import numpy as np
-from dgh import dgh
+import dgh
 
 # Set distance matrix for the rectangle.
 X = np.array([[0, 1, 10, 10],
