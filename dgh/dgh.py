@@ -58,7 +58,7 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
+def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
        lb=0, tol=1e-8, validate_tri_ineq=False, return_fg=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
@@ -66,9 +66,9 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
 
     :param X: distance matrix of X (2d-array)
     :param Y: distance matrix of Y (2d-array)
-    :param phi_first: upper bound of the non-convexity degree ∈ (0, ½) in the
+    :param first_phi: upper bound of the non-convexity degree ∈ (0, ½) in the
         first minimization problem (float)
-    :param c_first: exponentiation base ∈ (1, ∞) for smoothing the distortion
+    :param first_c: exponentiation base ∈ (1, ∞) for smoothing the distortion
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
@@ -76,7 +76,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     :param tol: tolerance to use when evaluating convergence (float)
     :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param return_fg: whether to return the optimal pair of mappings (bool)
-    :param verbose: 0=no output, 1=print restart results, 2=print iterations
+    :param verbose: no output if 0, summary if >0, restarts if >1, iterations if >2
     :return: dGH(X, Y), f [optional], g [optional]
     """
     # Check that the distances satisfy the metric properties minus the triangle inequality.
@@ -103,13 +103,17 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
     lb /= d_max
 
     # Find c for the first minimization if needed.
-    if c_first is not None:
-        assert c_first > 1, f'starting exponentiation base must be > 1 (c_first={c_first} )'
+    if first_c is not None:
+        assert first_c > 1, f'starting exponentiation base must be > 1 (c_first={first_c} )'
     else:
-        assert phi_first is not None, f'either phi_first or c_start must be given'
-        assert 0 < phi_first < .5, f'starting non-convexity UB must be < 0.5 ' \
-                                   f'(phi_first={phi_first})'
-        c_first = find_c(phi_first, X, Y)
+        assert first_phi is not None, f'either first_phi or first_c must be given'
+        assert 0 < first_phi < .5, f'starting non-convexity UB must be < 0.5 ' \
+                                   f'(phi_first={first_phi})'
+        first_c = find_c(first_phi, X, Y)
+
+    if verbose > 0:
+        print(f'using {iter_budget} iterations starting from c={first_c} '
+              f'(for X, Y rescaled by {d_max}), dGH≥{lb*d_max}')
 
     # Find minima from new restarts until run out of iteration budget.
     min_dis_R = np.inf
@@ -119,7 +123,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         # Initialize new restart.
         S = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
         fw_idx = 0
-        c = c_first
+        c = first_c
 
         # Run a sequence of FW solvers using solutions as subsequent warm starts.
         solving_for_next_c = True
@@ -155,7 +159,7 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
             best_f, best_g = S_to_fg(S, n, m)
             min_dis_R = dis_R
 
-        if verbose >= 1:
+        if verbose > 1:
             print(f'finished restart {restart_idx}: ½dis(R)={dis_R/2:.4f}, '
                   f'min ½dis(R)={min_dis_R/2:.4f}, remaining iter={iter_budget}')
 
@@ -164,6 +168,9 @@ def ub(X, Y, phi_first=.1, c_first=None, iter_budget=100, center_start=False,
         # Terminate if achieved lower bound.
         if min_dis_R <= lb:
             break
+
+    if verbose > 0:
+        print(f'proved dGH≤{min_dis_R} after {restart_idx} restarts')
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 
