@@ -1,17 +1,6 @@
 # Changelog
 
 <!--next-version-placeholder-->
-## v0.0.7 (May 10 2023)
-
-### Feature
-
-- Simplified import structure
-- Added "summary" verbose level
-
-### Documentation
-
-- Updated example illustration
-
 ## v0.0.6 (May 9 2023)
 
 ### Feature
