@@ -156,12 +156,13 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
 
         # Update the best distortion achieved from all restarts.
         if dis_R < min_dis_R:
-            best_f, best_g = S_to_fg(S, n, m)
+            best_f, best_g = map(list, S_to_fg(S, n, m))
             min_dis_R = dis_R
 
         if verbose > 1:
-            print(f'finished restart {restart_idx}: ½dis(R)={dis_R/2:.4f}, '
-                  f'min ½dis(R)={min_dis_R/2:.4f}, remaining iter={iter_budget}')
+            fg_descr = f' (f={best_f}, g={best_g})' if return_fg else ''
+            print(f'restart {restart_idx} (used {used_iter} iterations): '
+                  f'½dis(R)={dis_R/2:.4f}, min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1
 
