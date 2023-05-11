@@ -1,6 +1,21 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.0.8 (May 11 2023)
+
+### Feature
+
+- Added f, g to verbose output if returning them
+
+### Fix
+
+- Corrected (halved) ub in summary (verbose > 0)
+
+### Documentation
+
+- Corrected project homepage
+- Switched to url for the example illustration 
+
 ## v0.0.7 (May 10 2023)
 
 ### Feature
