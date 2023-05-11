@@ -173,7 +173,7 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
             break
 
     if verbose > 0:
-        print(f'proved dGH≤{min_dis_R} after {restart_idx} restarts')
+        print(f'proved dGH≤{min_dis_R/2} after {restart_idx} restarts')
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 
