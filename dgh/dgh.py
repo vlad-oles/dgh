@@ -122,11 +122,12 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
     while iter_budget > 0:
         # Initialize new restart.
         S = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
+        restart_iter = 0
         fw_idx = 0
         c = first_c
+        solving_for_next_c = True
 
         # Run a sequence of FW solvers using solutions as subsequent warm starts.
-        solving_for_next_c = True
         while solving_for_next_c:
             # Set up next FW solver in the sequence if needed.
             try:
@@ -144,10 +145,11 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
             solving_for_next_c = 0 < used_iter < iter_budget and c < MAX_C
 
             # Move to the next minimization obtained by squaring c.
-            iter_budget -= used_iter
             fw_idx += 1
             with np.errstate(over='ignore'):
                 c **= 2
+            iter_budget -= used_iter
+            restart_iter += used_iter
 
         # Project the solution to the set of correspondences and find the
         # resulting distortion on the original scale.
@@ -161,7 +163,7 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
 
         if verbose > 1:
             fg_descr = f' (f={best_f}, g={best_g})' if return_fg else ''
-            print(f'restart {restart_idx} (used {used_iter} iterations): '
+            print(f'restart {restart_idx} (used {restart_iter} iterations): '
                   f'½dis(R)={dis_R/2:.4f}, min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1
