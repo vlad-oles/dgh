@@ -35,16 +35,16 @@ Y = np.array([[0, 1, 1, 10],
 Y += Y.T
 
 # Find an upper bound of the Gromov–Hausdorff distance.
-dgh.ub(X, Y)
+dGH = dgh.ub(X, Y)
 ```
 
 Increasing the budget of Frank-Wolfe iterations, and thus the number of restarts, allocated for the search (the default budget is 100):
 
-```d = dgh.ub(X, Y, iter_budget=1000)```
+```dGH = dgh.ub(X, Y, iter_budget=1000)```
 
 Obtaining the mappings $f:X\to Y, g:Y\to X$ (as arrays s.t. $f_i = j \Leftrightarrow f(x_i) = y_j$) that deliver the found minimum:
 
-```d, f, g = dgh.ub(X, Y, return_fg=True)```
+```dGH, f, g = dgh.ub(X, Y, return_fg=True)```
 
 ## Contributing
 If you found a bug or want to suggest an enhancement, you can create a [GitHub Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue). Alternatively, you can email vlad.oles (at) proton (dot) me.
