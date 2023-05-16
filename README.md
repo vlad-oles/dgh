@@ -34,7 +34,7 @@ Y = np.array([[0, 1, 1, 10],
               [0, 0, 0, 0]])
 Y += Y.T
 
-# Find an upper bound of the Gromov–Hausdorff distance.
+# Find an upper bound of the Gromov–Hausdorff distance. In this case, dGH(X, Y) = 0.5.
 dGH = dgh.ub(X, Y)
 ```
 
