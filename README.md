@@ -13,7 +13,7 @@ Installing the package from Python Package Index:
 Computing $d_\text{GH}(X, Y)$ where $X$ is the vertices of a tall narrow rectangle and $Y$ is the vertices of a small equilateral triangle together with a remote point from it (see illustration):
 
 <p align="center">
-    <img src="https://github.com/vlad-oles/dgh/blob/main/illustration.png" alt="Illustration of the example" width="300"/>
+    <img src="https://github.com/vlad-oles/dgh/blob/main/illustration.svg" alt="Illustration of the example" width="300"/>
 </p>
 
 ```
