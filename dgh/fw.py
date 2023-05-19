@@ -75,7 +75,7 @@ def make_frank_wolfe_solver(X, Y, c, **kwargs):
 
     # Smooth distortion as the objective.
     def obj(S):
-        return np.sum(S * aux_sum(S)) - 2 * (n + m)**2  # redundant subtraction
+        return np.sum(S * aux_sum(S))
 
     # ∇obj.
     def grad(S):
