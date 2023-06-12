@@ -58,7 +58,7 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
+def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
        lb=0, tol=1e-8, validate_tri_ineq=False, return_fg=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
@@ -88,6 +88,12 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
         assert validate_tri_ineq(X) and validate_tri_ineq(Y),\
             "triangle inequality doesn't hold"
 
+    # Validate optimization parameters.
+    c_seq = c if type(c) is list else [c]
+    max_iter_seq = max_iter if type(max_iter) is list else [max_iter]
+    assert len(c_seq) == len(max_iter_seq),\
+        f'lengths of c={c_seq} and max_iter={max_iter_seq} must match'
+
     # Initialize tools for generating starting points.
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
@@ -97,25 +103,16 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
     rad_X, rad_Y = map(rad, [X, Y])
     lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
 
-    # Scale all distances to prevent overflow.
+    # Scale all distances to avoid overflow.
     d_max = max(diam_X, diam_Y)
     X, Y = map(lambda Z: Z.copy()/d_max, [X, Y])
     lb /= d_max
 
-    # Find c for the first minimization if needed.
-    if first_c is not None:
-        assert first_c > 1, f'starting exponentiation base must be > 1 (c_first={first_c} )'
-    else:
-        assert first_phi is not None, f'either first_phi or first_c must be given'
-        assert 0 < first_phi < .5, f'starting non-convexity UB must be < 0.5 ' \
-                                   f'(phi_first={first_phi})'
-        first_c = find_c(first_phi, X, Y)
-
     if verbose > 0:
-        print(f'using {iter_budget} iterations starting from c={first_c} '
-              f'(for X, Y rescaled by {d_max}), dGH≥{lb*d_max}')
+        print(f'iteration budget {iter_budget} | c={c_seq} | '
+              f'max_iter={max_iter_seq} | dGH≥{lb*d_max}')
 
-    # Find minima from new restarts until run out of iteration budget.
+    # Find minima from new restarts until iteration budget is depleted.
     min_dis_R = np.inf
     fw_seq = []
     restart_idx = 0
@@ -123,12 +120,9 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
         # Initialize new restart.
         S = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
         restart_iter = 0
-        fw_idx = 0
-        c = first_c
-        solving_for_next_c = True
 
         # Run a sequence of FW solvers using solutions as subsequent warm starts.
-        while solving_for_next_c:
+        for fw_idx, (c, max_iter) in enumerate(zip(c_seq, max_iter_seq)):
             # Set up next FW solver in the sequence if needed.
             try:
                 fw = fw_seq[fw_idx]
@@ -138,16 +132,11 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
                 fw_seq.append(fw)
 
             # Solve the minimization problem.
-            S, used_iter = fw(S0=S, max_iter=iter_budget)
+            if max_iter < 0:
+                max_iter = np.inf
+            S, used_iter = fw(S0=S, max_iter=min(max_iter, iter_budget))
 
-            # Terminate if no iterations were made, run out of iteration budget,
-            # or next c will exceed floating point arithmetic limits.
-            solving_for_next_c = 0 < used_iter < iter_budget and c < MAX_C
-
-            # Move to the next minimization obtained by squaring c.
-            fw_idx += 1
-            with np.errstate(over='ignore'):
-                c **= 2
+            # Update iterations.
             iter_budget -= used_iter
             restart_iter += used_iter
 
@@ -162,9 +151,9 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
             min_dis_R = dis_R
 
         if verbose > 1:
-            fg_descr = f' (f={best_f}, g={best_g})' if return_fg else ''
-            print(f'restart {restart_idx} (used {restart_iter} iterations): '
-                  f'½dis(R)={dis_R/2:.4f}, min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
+            fg_descr = f' | f={best_f}, g={best_g}' if return_fg else ''
+            print(f'restart {restart_idx} (used {restart_iter} iterations) | '
+                  f'½dis(R)={dis_R/2:.4f} | min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1
 
@@ -177,4 +166,5 @@ def ub(X, Y, first_phi=.1, first_c=None, iter_budget=100, center_start=False,
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 
-    return res
+    # return res
+    return res, restart_idx
