@@ -94,7 +94,7 @@ def make_frank_wolfe_solver(X, Y, c, **kwargs):
         a = np.sum(D * aux_sum(D))
         b = np.sum(D * aux_sum(S)) + np.sum(S * aux_sum(D))
         with np.errstate(divide='ignore', invalid='ignore'):
-            global_gamma = -b / (2*a)
+            global_gamma = np.divide(-b, 2*a)
 
         return global_gamma
 
