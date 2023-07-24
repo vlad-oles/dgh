@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Computing the Gromov–Hausdorff distance"
 readme = "README.md"
-requires-python = ">=3.5"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
