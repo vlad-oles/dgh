@@ -24,8 +24,8 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
-       lb=0, tol=1e-8, validate_tri_ineq=False, return_fg=False, verbose=0, rnd=None):
+def ub(X, Y, c, iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
+       lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -36,10 +36,10 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
-    :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
     :param tol: tolerance to use when evaluating convergence (float)
-    :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param return_fg: whether to return the optimal pair of mappings (bool)
+    :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
+    :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param verbose: no output if 0, summary if >0, restarts if >1, iterations if >2
     :return: dGH(X, Y), f [optional], g [optional]
     """
