@@ -6,7 +6,7 @@ from .spaces import arrange_distances
 
 
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
-                      tol=1e-8, max_iter=10, verbose=0):
+                      tol=1e-8, max_iter=np.inf, verbose=0):
     """
     Minimize smoothed distortion over the bi-mapping polytope 𝓢.
 
@@ -16,7 +16,7 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
     :param minimize_obj_wrt_gamma: γ*:𝓢×𝓢🠒ℝ (function)
     :param S0: starting point in 𝓢 (2d-array)
     :param tol: tolerance for measuring rate of descent (float)
-    :param max_iter: maximum number of iterations (int)
+    :param max_iter: maximum number of iterations (int or infinity)
     :param verbose: no output if ≤2, iterations if >2
     :return: solution, number of iterations performed
     """
@@ -36,7 +36,7 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
         gamma = min(critical_gammas, key=lambda x: obj(S + x*D))
 
         if verbose > 2:
-            print(f'  iter {iter}: obj(S)={obj(S):.4f}, γ={gamma:.5f}')
+            print(f'  iter {iter}: σ(S)={obj(S):.4f}, γ={gamma:.5f}')
 
         # Stop if the rate of descent is too small or if the line search stalls.
         if np.sum(-grad_at_S * D) < tol or np.isclose(gamma, 0):
@@ -60,39 +60,38 @@ def make_frank_wolfe_solver(X, Y, c, **kwargs):
     :param X: distance matrix of X (2d-array)
     :param Y: distance matrix of Y (2d-array)
     :param c: exponentiation base ∈ (1, ∞) for smoothing the distortion (float)
-    :param kwargs:
     :return: solver
     """
     n, m = len(X), len(Y)
 
     # Define auxiliary function that is a component in the objective and its gradient.
-    def aux_sum(S):
+    def dot_multiplicand(S):
         X__Y, Y__X, _Y_X = arrange_distances(X, Y)
         c_Y_X, c__Y_X = c**_Y_X,  c**-_Y_X
 
         return (c__Y_X @ S @ c_Y_X + c_Y_X @ S @ c__Y_X).T + \
             c**-X__Y @ S @ c**Y__X + c**X__Y @ S @ c**-Y__X
 
-    # Smooth distortion as the objective.
+    # Smooth distortion σ as the objective.
     def obj(S):
-        return np.sum(S * aux_sum(S))
+        return np.sum(S * dot_multiplicand(S))
 
-    # ∇obj.
+    # ∇σ.
     def grad(S):
-        return 2 * aux_sum(S)
+        return 2 * dot_multiplicand(S)
 
-    # To minimize〈R, ∇obj(S)〉over 𝓢 given S ∈ 𝓢, R must be a vertex of 𝓢.
+    # To minimize〈R, ∇σ(S)〉over 𝓢 given S ∈ 𝓢, R must be a vertex of 𝓢.
     def find_descent_direction(grad_at_S):
         f = np.argmin(grad_at_S[:n, :m], axis=1)
         g = np.argmin(grad_at_S[n:, m:], axis=1)
 
         return fg_to_R(f, g)
 
-    # To minimize obj(γ) = obj(S + γD), for line search.
+    # To minimize σ(γ) = σ(S + γD), for line search.
     def minimize_obj_wrt_gamma(S, D):
-        # Leverage that the objective is quadratic in γ, obj(γ) = aγ² + bγ + c.
-        a = np.sum(D * aux_sum(D))
-        b = np.sum(D * aux_sum(S)) + np.sum(S * aux_sum(D))
+        # Leverage that the objective is quadratic in γ, σ(γ) = aγ² + bγ + c.
+        a = np.sum(D * dot_multiplicand(D))
+        b = np.sum(D * dot_multiplicand(S)) + np.sum(S * dot_multiplicand(D))
         with np.errstate(divide='ignore', invalid='ignore'):
             global_gamma = np.divide(-b, 2*a)
 

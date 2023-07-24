@@ -1,43 +1,9 @@
 import numpy as np
-import scipy.optimize as opt
 
 from .mappings import rnd_S, center, S_to_fg, S_to_R
 from .fw import make_frank_wolfe_solver
 from .spaces import diam, rad, arrange_distances
 from .constants import DEFAULT_SEED, MAX_C
-
-
-def find_c(phi, X, Y):
-    """
-    Find c > 1 s.t. the Hessian is at most φ away from the set of positive
-    semidefinite matrices (w.r.t. normalized nuclear norm-induced distance).
-
-    :param phi: upper bound for the degree of non-convexity ∈ (0, ½) (float)
-    :param X: distance matrix of X (2d-array)
-    :param Y: distance matrix of Y (2d-array)
-    :return: c
-    """
-    n, m = len(X), len(Y)
-    N = n + m
-    d_max = max(X.max(), Y.max())
-    # Quantity for an upper bound on the sum of exponents of the distances.
-    p_max = N ** 2 * ((2 ** 1.5 + 4) * np.sqrt(
-        N ** 2 * ((X ** 2).sum() + (Y ** 2).sum()) - (X.sum() + Y.sum()) ** 2)) / d_max + 6
-
-    # Function whose roots > 1 are guaranteed to yield the Hessian at most φ away
-    # from the set of positive semidefinite matrices.
-    def func_to_solve(c):
-        # 1-norm of the Hessian.
-        sum_H = 8 * ((c**X).sum() + (c**Y).sum() + 2*n*m) * ((c**-X).sum() + (c**-Y).sum() + 2*n*m)
-
-        return 1 - 2 * phi - N / (N + np.sqrt(
-            16*N**4 + p_max*(c**(2*d_max) + c**(-2*d_max) - 2) - sum_H**2 / (4 * N**4)))
-
-    # Find a root of the function using secant method with the initial guess at 1.
-    c = opt.newton(func_to_solve, 1)
-    assert c > 1, f'cannot find c for φ={phi}, consider higher value or providing c_start'
-
-    return c
 
 
 def dis(S, X, Y):
@@ -66,9 +32,7 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
 
     :param X: distance matrix of X (2d-array)
     :param Y: distance matrix of Y (2d-array)
-    :param first_phi: upper bound of the non-convexity degree ∈ (0, ½) in the
-        first minimization problem (float)
-    :param first_c: exponentiation base ∈ (1, ∞) for smoothing the distortion
+    :param c: exponentiation base ∈ (1, ∞) for smoothing the distortion
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
@@ -88,12 +52,6 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
         assert validate_tri_ineq(X) and validate_tri_ineq(Y),\
             "triangle inequality doesn't hold"
 
-    # Validate optimization parameters.
-    c_seq = c if type(c) is list else [c]
-    max_iter_seq = max_iter if type(max_iter) is list else [max_iter]
-    assert len(c_seq) == len(max_iter_seq),\
-        f'lengths of c={c_seq} and max_iter={max_iter_seq} must match'
-
     # Initialize tools for generating starting points.
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
@@ -105,40 +63,26 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
 
     # Scale all distances to avoid overflow.
     d_max = max(diam_X, diam_Y)
-    X, Y = map(lambda Z: Z.copy()/d_max, [X, Y])
+    X, Y = map(lambda Z: Z.copy() / d_max, [X, Y])
     lb /= d_max
 
     if verbose > 0:
-        print(f'iteration budget {iter_budget} | c={c_seq} | '
+        print(f'iteration budget {iter_budget} | c={c} | '
               f'max_iter={max_iter_seq} | dGH≥{lb*d_max}')
 
     # Find minima from new restarts until iteration budget is depleted.
     min_dis_R = np.inf
-    fw_seq = []
     restart_idx = 0
+    fw = make_frank_wolfe_solver(X, Y, c, tol=tol, verbose=verbose)
     while iter_budget > 0:
         # Initialize new restart.
-        S = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
-        restart_iter = 0
+        S0 = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
 
-        # Run a sequence of FW solvers using solutions as subsequent warm starts.
-        for fw_idx, (c, max_iter) in enumerate(zip(c_seq, max_iter_seq)):
-            # Set up next FW solver in the sequence if needed.
-            try:
-                fw = fw_seq[fw_idx]
-            except IndexError:
-                fw = make_frank_wolfe_solver(
-                    X, Y, c, tol=tol, verbose=verbose)
-                fw_seq.append(fw)
+        # Find new (approximate) solution.
+        S, used_iter = fw(S0=S0, max_iter=iter_budget)
 
-            # Solve the minimization problem.
-            if max_iter < 0:
-                max_iter = np.inf
-            S, used_iter = fw(S0=S, max_iter=min(max_iter, iter_budget))
-
-            # Update iterations.
-            iter_budget -= used_iter
-            restart_iter += used_iter
+        # Update iteration budget.
+        iter_budget -= used_iter
 
         # Project the solution to the set of correspondences and find the
         # resulting distortion on the original scale.
@@ -152,7 +96,7 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
 
         if verbose > 1:
             fg_descr = f' | f={best_f}, g={best_g}' if return_fg else ''
-            print(f'restart {restart_idx} (used {restart_iter} iterations) | '
+            print(f'restart {restart_idx} ({used_iter} iterations) | '
                   f'½dis(R)={dis_R/2:.4f} | min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1
@@ -166,5 +110,4 @@ def ub(X, Y, c, iter_budget=100, max_iter=-1, center_start=False,
 
     res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
 
-    # return res
-    return res, restart_idx
+    return res
