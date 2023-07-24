@@ -1,6 +1,23 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.1.0 (Jul 24 2023)
+
+### Feature
+
+- Added searching for best c as default behavior
+- Added function for random generation of a bi-mapping polytope vertex R
+- Added `__version__` variable
+- Python >= 3.8 is now required
+
+### Fix
+
+- Removed convexity-based calculation of c and warm-start sequences of c due to inefficiency
+
+### Documentation
+
+- Created "Advanced" section where the logic behind parameter c is explained
+
 ## v0.0.8 (May 11 2023)
 
 ### Feature
