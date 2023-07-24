@@ -3,6 +3,24 @@ import numpy as np
 from .constants import DEFAULT_SEED
 
 
+def rnd_R(n, m, rnd=None):
+    """
+    Generates random vertex of bi-mapping polytope 𝓢.
+
+    :param n: cardinality of X (int)
+    :param m: cardinality of Y (int)
+    :param rnd: NumPy random state
+    :return: mapping pair R ∈ 𝓡  (2d-array)
+    """
+    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+
+    R = np.zeros(n+m, n+m)
+    R[np.arange(n), rnd.choice(m, n)] = 1
+    R[n + np.arange(m), m + rnd.choice(n, m)] = 1
+
+    return R
+
+
 def rnd_S(n, m, rnd=None):
     """
     Generates random soft mapping in X🠖Y as a point in the bi-mapping polytope 𝓢.

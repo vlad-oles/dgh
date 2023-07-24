@@ -1,6 +1,6 @@
 import numpy as np
 
-from .mappings import rnd_S, center, S_to_fg, S_to_R
+from .mappings import rnd_R, rnd_S, center, S_to_fg, S_to_R
 from .fw import make_frank_wolfe_solver
 from .spaces import diam, rad, arrange_distances
 from .constants import DEFAULT_SEED, MAX_C
