@@ -3,7 +3,7 @@ import numpy as np
 from .mappings import rnd_R, rnd_S, center, S_to_fg, S_to_R
 from .fw import make_frank_wolfe_solver
 from .spaces import diam, rad, arrange_distances
-from .constants import DEFAULT_SEED, MAX_C
+from .constants import DEFAULT_SEED, C_SEARCH_GRID
 
 
 def dis(S, X, Y):
@@ -24,8 +24,8 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, c, iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
-       lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
+def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
+       lower=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -38,7 +38,7 @@ def ub(X, Y, c, iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
     :param tol: tolerance to use when evaluating convergence (float)
     :param return_fg: whether to return the optimal pair of mappings (bool)
-    :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
+    :param lower: lower bound of dGH(X, Y) to avoid redundant iterations (float)
     :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param verbose: no output if 0, summary if >0, restarts if >1, iterations if >2
     :return: dGH(X, Y), f [optional], g [optional]
@@ -52,26 +52,44 @@ def ub(X, Y, c, iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
         assert validate_tri_ineq(X) and validate_tri_ineq(Y),\
             "triangle inequality doesn't hold"
 
-    # Initialize tools for generating starting points.
+    # Initialize.
     n, m = len(X), len(Y)
     rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+    best_dis_R = np.inf
 
     # Update lower bound using the radius and diameter differences.
     diam_X, diam_Y = map(diam, [X, Y])
     rad_X, rad_Y = map(rad, [X, Y])
-    lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
+    lower = max(lower, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
+
+    if verbose > 0:
+        print(f'iteration budget {iter_budget} | c={c} | | dGH≥{lower}')
+
+    # Search for best c if not specified.
+    if c == 'auto':
+        # Allocate 50% of iteration budget for the search.
+        search_iter_budget_per_c = iter_budget // (2*len(C_SEARCH_GRID))
+        search_iter_budget = search_iter_budget_per_c * len(C_SEARCH_GRID)
+        iter_budget -= search_iter_budget
+
+        # Select c resulting in the smallest upper bound.
+        for c_test in C_SEARCH_GRID:
+            upper, f, g = ub(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
+                             center_start=center_start, tol=tol, return_fg=True)
+            if upper < best_dis_R/2:
+                c = c_test
+                best_f, best_g = f, g
+                best_dis_R = 2*upper
+
+        if verbose > 0:
+            print(f'spent {search_iter_budget} iterations to choose c={c}')
 
     # Scale all distances to avoid overflow.
     d_max = max(diam_X, diam_Y)
     X, Y = map(lambda Z: Z.copy() / d_max, [X, Y])
-    lb /= d_max
-
-    if verbose > 0:
-        print(f'iteration budget {iter_budget} | c={c} | '
-              f'max_iter={max_iter_seq} | dGH≥{lb*d_max}')
+    lower /= d_max
 
     # Find minima from new restarts until iteration budget is depleted.
-    min_dis_R = np.inf
     restart_idx = 0
     fw = make_frank_wolfe_solver(X, Y, c, tol=tol, verbose=verbose)
     while iter_budget > 0:
@@ -90,24 +108,24 @@ def ub(X, Y, c, iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
         dis_R = dis(R, X, Y) * d_max
 
         # Update the best distortion achieved from all restarts.
-        if dis_R < min_dis_R:
+        if dis_R < best_dis_R:
             best_f, best_g = map(list, S_to_fg(S, n, m))
-            min_dis_R = dis_R
+            best_dis_R = dis_R
 
         if verbose > 1:
             fg_descr = f' | f={best_f}, g={best_g}' if return_fg else ''
             print(f'restart {restart_idx} ({used_iter} iterations) | '
-                  f'½dis(R)={dis_R/2:.4f} | min ½dis(R)={min_dis_R/2:.4f}{fg_descr}')
+                  f'½dis(R)={dis_R/2:.4f} | min ½dis(R)={best_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1
 
         # Terminate if achieved lower bound.
-        if min_dis_R <= lb:
+        if best_dis_R <= lower:
             break
 
     if verbose > 0:
-        print(f'proved dGH≤{min_dis_R/2} after {restart_idx} restarts')
+        print(f'proved dGH≤{best_dis_R/2} after {restart_idx} restarts')
 
-    res = (min_dis_R/2, best_f, best_g) if return_fg else min_dis_R/2
+    res = (best_dis_R/2, best_f, best_g) if return_fg else best_dis_R/2
 
     return res

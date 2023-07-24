@@ -1,5 +1,6 @@
 import sys
+import numpy as np
 
 
 DEFAULT_SEED = 666
-MAX_C = sys.float_info.max**.5
+C_SEARCH_GRID = 1 + 10.**np.arange(-4, 9, 2)
