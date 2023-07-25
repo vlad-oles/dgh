@@ -1,2 +1,3 @@
 dist/*
 dgh/__pycache__
+*.pdf
