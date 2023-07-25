@@ -41,7 +41,7 @@ To compute (an upper bound of) their Gromov--Hausdorff distance $d_\text{GH}(X, 
 ```
 import dgh
 
-dGH = dgh.ub(X, Y)
+dGH = dgh.upper(X, Y)
 ```
 
 In this case, the distance is computed exactly as $d_\text{GH}(X, Y)=\frac{1}{2}$. 
@@ -50,11 +50,11 @@ In this case, the distance is computed exactly as $d_\text{GH}(X, Y)=\frac{1}{2}
 
 By default, the computational budget allocated for the search is 100 Frank–Wolfe iterations. Bigger budget means more random restarts (and/or better convergence) and therefore the accuracy. To set the budget:
 
-```dGH = dgh.ub(X, Y, iter_budget=my_budget)```
+```dGH = dgh.upper(X, Y, iter_budget=my_budget)```
 
 To obtain the mappings $f:X\to Y, g:Y\to X$ (as arrays s.t. $f_i = j \Leftrightarrow f(x_i) = y_j$) that deliver the found minimum:
 
-```dGH, f, g = dgh.ub(X, Y, return_fg=True)```
+```dGH, f, g = dgh.upper(X, Y, return_fg=True)```
 
 ## Advanced
 The performance can be improved by explicitly specifying the relaxation parameter $c \in (1, \infty)$. Small $c$ makes the relaxation easier to solve, but its solutions are more likely to deliver the Gromov–Hausdorff distance when $c$ is large.
@@ -63,11 +63,11 @@ By default, the method allocates half of the iteration budget to select the best
 
 To reveal the value of $c$ selected after the search:
 
-```dgh.ub(X, Y, verbose=1)```
+```dgh.upper(X, Y, verbose=1)```
 
 To compute for specific value of $c$ (to avoid spending iterations on the search and/or to test for better accuracy):
 
-```dGH = dgh.ub(X, Y, c=my_c)```
+```dGH = dgh.upper(X, Y, c=my_c)```
 
 
 ## Contributing

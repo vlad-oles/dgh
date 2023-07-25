@@ -24,8 +24,8 @@ def dis(S, X, Y):
     return dis_S
 
 
-def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=False,
-       lower=0, validate_tri_ineq=False, verbose=0, rnd=None):
+def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
+          return_fg=False, lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -38,7 +38,7 @@ def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=
     :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
     :param tol: tolerance to use when evaluating convergence (float)
     :param return_fg: whether to return the optimal pair of mappings (bool)
-    :param lower: lower bound of dGH(X, Y) to avoid redundant iterations (float)
+    :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
     :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param verbose: no output if 0, summary if >0, restarts if >1, iterations if >2
     :return: dGH(X, Y), f [optional], g [optional]
@@ -60,10 +60,10 @@ def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=
     # Update lower bound using the radius and diameter differences.
     diam_X, diam_Y = map(diam, [X, Y])
     rad_X, rad_Y = map(rad, [X, Y])
-    lower = max(lower, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
+    lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
 
     if verbose > 0:
-        print(f'iteration budget {iter_budget} | c={c} | | dGH≥{lower}')
+        print(f'iteration budget {iter_budget} | c={c} | | dGH≥{lb}')
 
     # Search for best c if not specified.
     if c == 'auto':
@@ -74,12 +74,12 @@ def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=
 
         # Select c resulting in the smallest upper bound.
         for c_test in C_SEARCH_GRID:
-            upper, f, g = ub(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
-                             center_start=center_start, tol=tol, return_fg=True)
-            if upper < best_dis_R/2:
+            ub, f, g = upper(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
+                             center_start=center_start, tol=tol, return_fg=True, lb=lb)
+            if ub < best_dis_R/2:
                 c = c_test
                 best_f, best_g = f, g
-                best_dis_R = 2*upper
+                best_dis_R = 2*ub
 
         if verbose > 0:
             print(f'spent {search_iter_budget} iterations to choose c={c}')
@@ -87,7 +87,7 @@ def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=
     # Scale all distances to avoid overflow.
     d_max = max(diam_X, diam_Y)
     X, Y = map(lambda Z: Z.copy() / d_max, [X, Y])
-    lower /= d_max
+    lb /= d_max
 
     # Find minima from new restarts until iteration budget is depleted.
     restart_idx = 0
@@ -120,7 +120,7 @@ def ub(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8, return_fg=
         restart_idx += 1
 
         # Terminate if achieved lower bound.
-        if best_dis_R <= lower:
+        if best_dis_R <= lb:
             break
 
     if verbose > 0:
