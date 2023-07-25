@@ -41,6 +41,7 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
     :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
     :param validate_tri_ineq: whether to validate the triangle inequality (bool)
     :param verbose: no output if 0, summary if >0, restarts if >1, iterations if >2
+    :param rnd: random number generator to use for restarts
     :return: dGH(X, Y), f [optional], g [optional]
     """
     # Check that the distances satisfy the metric properties minus the triangle inequality.
@@ -73,13 +74,20 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
         iter_budget -= search_iter_budget
 
         # Select c resulting in the smallest upper bound.
+        init_rnd_state = rnd.get_state()
         for c_test in C_SEARCH_GRID:
+            rnd.set_state(init_rnd_state)
             ub, f, g = upper(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
-                             center_start=center_start, tol=tol, return_fg=True, lb=lb)
+                             center_start=center_start, tol=tol, return_fg=True,
+                             lb=lb, rnd=rnd)
             if ub < best_dis_R/2:
                 c = c_test
+                rnd_state = rnd.get_state()
                 best_f, best_g = f, g
                 best_dis_R = 2*ub
+
+        # Set random number generator to after the search iterations.
+        rnd.set_state(rnd_state)
 
         if verbose > 0:
             print(f'spent {search_iter_budget} iterations to choose c={c}')
