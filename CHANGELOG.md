@@ -1,28 +1,44 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.1.1 (Jul 25 2023)
+
+### Feature
+
+- Renamed `ub()` to `upper()`
+
+### Fix
+
+- Corrected random number generator state in the search for best $c$ and its effects on the subsequent computations
+
+### Documentation
+
+- Added link to the paper
+- Added "Basics" section
+- Layout and readability improvements
+
 ## v0.1.0 (Jul 24 2023)
 
 ### Feature
 
-- Added searching for best c as default behavior
-- Added function for random generation of a bi-mapping polytope vertex R
+- Added searching for best $c$ as default behavior
+- Added function for random generation of a bi-mapping polytope vertex $\mathbf{R}$
 - Added `__version__` variable
 - Python >= 3.8 is now required
 
 ### Fix
 
-- Removed convexity-based calculation of c and warm-start sequences of c due to inefficiency
+- Removed convexity-based calculation of $c$ and warm-start sequences of $c$ due to inefficiency
 
 ### Documentation
 
-- Created "Advanced" section where the logic behind parameter c is explained
+- Created "Advanced" section where the logic behind parameter $c$ is explained
 
 ## v0.0.8 (May 11 2023)
 
 ### Feature
 
-- Added f, g to verbose output if returning them
+- Added $(f, g)$ to verbose output if returning the mappings
 
 ### Fix
 
