@@ -4,7 +4,7 @@ Given the distance matrices of some metric spaces $X$ and $Y$, estimates the Gro
 
 The distance is estimated from above by solving its parametric relaxation whose solutions are guaranteed to deliver $d_\text{GH}(X, Y)$ for sufficiently large value of the parameter $c$. The quadratic relaxation with affine constraints is solved using the Frank–Wolfe algorithm in $O(n^3)$ time per its iteration, where $n = \max\{|X|, |Y|\}$ is the number of points in the larger space. Even if the algorithm fails to find $d_\text{GH}(X, Y)$ exactly, the resulting solution provides its upper bound.
 
-A manuscript describing the underlying theory is currently in preparation.
+A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to solving it can be found in [Computing the Gromov–Hausdorff distance using first-order methods](https://arxiv.org/pdf/2307.13660.pdf).
 
 ## Quickstart
 
@@ -75,3 +75,16 @@ If you found a bug or want to suggest an enhancement, you can create a [GitHub I
 
 ## License
 dGH is released under the MIT license.
+
+## Research
+To cite dGH, you can use the following:
+<blockquote>
+<p>Oles, V. (2023). Computing the Gromov–Hausdorff distance using first-order methods. <i>arXiv preprint arXiv:2307.13660</i>.</p>
+</blockquote>
+<pre><code>@article{oles2023computing,
+  title={Computing the Gromov--Hausdorff distance using first-order methods},
+  author={Oles, Vladyslav},
+  journal={arXiv preprint arXiv:2307.13660},
+  year={2023}
+}
+</code></pre>
