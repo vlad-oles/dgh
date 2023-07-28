@@ -48,7 +48,7 @@ In this case, the distance is computed exactly as $d_\text{GH}(X, Y)=\frac{1}{2}
 
 ## Basics
 
-By default, the computational budget allocated for the search is 100 Frank–Wolfe iterations. Bigger budget means more random restarts (and/or better convergence) and therefore the accuracy. To set the budget:
+By default, the computational budget allocated for the search is 100 Frank–Wolfe iterations. Bigger budget means better convergence, more random restarts, and therefore higher accuracy. To set the budget:
 
 ```dGH = dgh.upper(X, Y, iter_budget=my_budget)```
 
