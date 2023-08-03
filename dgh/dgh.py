@@ -44,6 +44,9 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
     :param rnd: random number generator to use for restarts
     :return: dGH(X, Y), f [optional], g [optional]
     """
+    # Ensure positive iteration budget.
+    assert iter_budget > 0, 'insufficient iteration budget'
+
     # Check that the distances satisfy the metric properties minus the triangle inequality.
     assert (X >= 0).all() and (Y >= 0).all(), 'distance matrices have negative entries'
     assert (np.diag(X) == 0).all() and (np.diag(Y) == 0).all(),\
@@ -64,7 +67,7 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
     lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
 
     if verbose > 0:
-        print(f'iteration budget {iter_budget} | c={c} | | dGH≥{lb}')
+        print(f'iteration budget {iter_budget} | c={c} | dGH≥{lb}')
 
     # Search for best c if not specified.
     if c == 'auto':
