@@ -1,8 +1,8 @@
 # dGH
 
-Given the distance matrices of metric spaces $X$ and $Y$, estimates the Gromov–Hausdorff distance $$d_\text{GH}(X, Y) = \frac{1}{2}\inf_{f:X\to Y, g:Y\to X} \text{dis}\Big(\\{(x, f(x)): x \in X\\} \cup \\{(g(y), y): y \in Y\\}\Big),$$ where $$\text{dis}(R) = \sup_{(x, y), (x', y') \in R} |d_X(x, x') - d_Y(y, y')|$$ is the distortion of a relation $R \subseteq X \times Y$.
+Given the distance matrices of metric spaces $X$ and $Y$, estimates the Gromov–Hausdorff distance $$d_\text{GH}(X, Y) = \frac{1}{2}\inf_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\\{\big(x, f(x)\big): x \in X\Big\\} \cup \Big\\{\big(g(y), y\big): y \in Y\Big\\}\Bigg),$$ where $$\text{dis}(R) = \sup_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$ is the distortion of a relation $R \subseteq X \times Y$.
 
-The distance is estimated from above by minimizing its parametric relaxation whose solutions are guaranteed to deliver $d_\text{GH}(X, Y)$ for sufficiently large value of the parameter $c>1$. The quadratic relaxation with affine constraints is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n = \max\\{|X|, |Y|\\}$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
+The distance is estimated from above by minimizing its parametric relaxation whose solutions are guaranteed to deliver $d_\text{GH}(X, Y)$ for sufficiently large value of the parameter $c>1$. The quadratic relaxation with affine constraints is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n = \max\big\\{|X|, |Y|\big\\}$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
 
 A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to minimizing it can be found in [Computing the Gromov–Hausdorff distance using first-order methods](https://arxiv.org/pdf/2307.13660.pdf).
 
