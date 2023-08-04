@@ -13,7 +13,7 @@ To install the package from Python Package Index:
 
 ## Quickstart
 
-Consider an example in which $X$ is comprised by the vertices of a $1 \times 10$ rectangle and $Y$ — by the vertices of a unit equilateral triangle together with a point that is 10 away fom them (see illustration).
+Consider an example in which $X$ is the vertices of a $1 \times 10$ rectangle and $Y$ is comprised by the vertices of a unit equilateral triangle together with a point that is 10 away from each of them (see illustration).
 
 <p align="center">
     <img src="https://github.com/vlad-oles/dgh/blob/main/illustration.svg" alt="Illustration of the example" width="300"/>
