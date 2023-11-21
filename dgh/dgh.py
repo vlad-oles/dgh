@@ -24,7 +24,7 @@ def dis(S, X, Y):
     return dis_S
 
 
-def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-8,
+def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-16,
           return_fg=False, lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
