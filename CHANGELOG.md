@@ -1,6 +1,7 @@
 # Changelog
 
 <!--next-version-placeholder-->
+
 ## v0.1.2 (Dec 27 2023)
 
 ### Feature
