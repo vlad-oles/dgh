@@ -125,7 +125,7 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-16,
 
         if verbose > 1:
             fg_descr = f' | f={best_f}, g={best_g}' if return_fg else ''
-            print(f'restart {restart_idx} ({used_iter} iterations) | '
+            print(f'finished restart {restart_idx} ({used_iter} iterations) | '
                   f'½dis(R)={dis_R/2:.4f} | min ½dis(R)={best_dis_R/2:.4f}{fg_descr}')
 
         restart_idx += 1

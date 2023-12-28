@@ -8,21 +8,20 @@ from .spaces import arrange_distances
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
                       tol=1e-8, max_iter=np.inf, verbose=0):
     """
-    Minimize smoothed distortion over the bi-mapping polytope 𝓢.
+    Minimize smoothed distortion σ over the bi-mapping polytope 𝓢.
 
-    :param obj: smoothed distortion
-    :param grad: ∇obj:𝓢🠒𝓢 (function)
+    :param obj: smoothed distortion σ:𝓢🠒ℝ (function)
+    :param grad: ∇σ:𝓢🠒𝓢 (function)
     :param find_descent_direction: R:ℝ^(n+m)×(n+m)🠒𝓢 (function)
     :param minimize_obj_wrt_gamma: γ*:𝓢×𝓢🠒ℝ (function)
     :param S0: starting point in 𝓢 (2d-array)
     :param tol: tolerance for measuring rate of descent (float)
-    :param max_iter: maximum number of iterations (int or infinity)
+    :param max_iter: maximum number of iterations (int or ∞)
     :param verbose: no output if ≤2, iterations if >2
     :return: solution, number of iterations performed
     """
     S = S0.copy()
-    iter = 0
-    while iter < max_iter:
+    for iter in range(max_iter):
         # Find the Frank-Wolfe direction.
         grad_at_S = grad(S)
         R = find_descent_direction(grad_at_S)
@@ -42,14 +41,12 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
         if np.sum(-grad_at_S * D) < tol or np.isclose(gamma, 0):
             break
 
-        # Move S by γ towards R, i.e. to (1-γ)S + γR.
+        # Move S towards R by γ, i.e. to (1-γ)S + γR.
         S += gamma * D
         assert np.allclose(np.sum(S, axis=1), 1), \
             f'(1-γ)S + γR is not row-stochastic: S={repr(S - gamma * D)}, D={repr(D)}, γ={gamma}'
 
-        iter += 1
-
-    return S, iter
+    return S, iter + 1
 
 
 def make_frank_wolfe_solver(X, Y, c, **kwargs):
