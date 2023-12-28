@@ -37,14 +37,14 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
         if verbose > 2:
             print(f'  iter {iter}: σ(S)={obj(S):.4f}, γ={gamma:.5f}')
 
-        # Stop if the rate of descent is too small or if the line search stalls.
-        if np.sum(-grad_at_S * D) < tol or np.isclose(gamma, 0):
-            break
-
         # Move S towards R by γ, i.e. to (1-γ)S + γR.
         S += gamma * D
         assert is_row_stoch(S), \
             f'(1-γ)S + γR is not row-stochastic: S={repr(S - gamma * D)}, R={repr(R)}, γ={gamma}'
+
+        # Stop if the rate of descent is too small or if the line search stalls.
+        if np.sum(-grad_at_S * D) < tol or np.isclose(gamma, 0):
+            break
 
     return S, iter + 1
 
