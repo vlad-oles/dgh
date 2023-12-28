@@ -1,6 +1,6 @@
 import numpy as np
 
-from .mappings import rnd_R, rnd_S, center, S_to_fg, S_to_R
+from .mappings import rnd_S, center, S_to_fg, S_to_R, is_in_bimapping_polytope
 from .fw import make_frank_wolfe_solver
 from .spaces import diam, rad, arrange_distances
 from .constants import DEFAULT_SEED, C_SEARCH_GRID
@@ -24,8 +24,8 @@ def dis(S, X, Y):
     return dis_S
 
 
-def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-16,
-          return_fg=False, lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
+def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
+          lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
     Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
     the bi-mapping polytope 𝓢 using Frank-Wolfe.
@@ -35,7 +35,8 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-16,
     :param c: exponentiation base ∈ (1, ∞) for smoothing the distortion
         in the first minimization problem (float)
     :param iter_budget: total number of Frank-Wolfe iterations (int)
-    :param center_start: whether to try the center of 𝓢 as a starting point first (bool)
+    :param S0: first starting point (subsequent restarts always use random ones):
+        2d-array, 'center' for the center of 𝓢, None for random point in 𝓢
     :param tol: tolerance to use when evaluating convergence (float)
     :param return_fg: whether to return the optimal pair of mappings (bool)
     :param lb: lower bound of dGH(X, Y) to avoid redundant iterations (float)
@@ -105,7 +106,14 @@ def upper(X, Y, c='auto', iter_budget=100, center_start=False, tol=1e-16,
     fw = make_frank_wolfe_solver(X, Y, c, tol=tol, verbose=verbose)
     while iter_budget > 0:
         # Initialize new restart.
-        S0 = center(n, m) if restart_idx == 0 and center_start else rnd_S(n, m, rnd)
+        if restart_idx > 0 or S0 is None:
+            S0 = rnd_S(n, m, rnd)
+        elif S0 == 'center':
+            S0 = center(n, m)
+        else:
+            assert isinstance(S0, np.ndarray), "S0 must be a 2d-array, 'center', or None"
+            assert S0.shape == (n + m, n + m), 'S0 must be (n+m)×(n+m)'
+            assert is_in_bimapping_polytope(S0), 'S0 must be in the bi-mapping polytope'
 
         # Find new (approximate) solution.
         S, used_iter = fw(S0=S0, max_iter=iter_budget)

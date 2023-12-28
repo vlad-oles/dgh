@@ -62,6 +62,27 @@ def center(n, m):
     return S
 
 
+def is_row_stoch(S):
+    """
+    Checks if S is row-stochastic.
+
+    :param S: 2d-array
+    :return: bool
+    """
+    return np.allclose(np.sum(S, axis=1), 1) and ((0 <= S) & (S <= 1)).all()
+
+
+def is_in_bimapping_polytope(S, n, m):
+    """
+    Checks if S ∈ 𝓢.
+
+    :param S: 2d-array
+    :return: bool
+    """
+    return is_row_stoch(S[:n, :m]) and is_row_stoch(S[n:, m:]) and \
+        np.allclose(S[:n, m:], 0) and np.allclose(S[n:, :m], 0)
+
+
 def fg_to_R(f, g):
     """
     Represents a mapping pair as a binary row-stochastic block matrix.
