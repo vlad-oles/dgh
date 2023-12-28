@@ -6,7 +6,7 @@ from .spaces import arrange_distances
 
 
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
-                      tol=1e-8, max_iter=np.inf, verbose=0):
+                      tol=1e-16, max_iter=np.inf, verbose=0):
     """
     Minimize smoothed distortion σ over the bi-mapping polytope 𝓢.
 
