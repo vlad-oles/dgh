@@ -82,8 +82,7 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
         for c_test in C_SEARCH_GRID:
             rnd.set_state(init_rnd_state)
             ub, f, g = upper(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
-                             center_start=center_start, tol=tol, return_fg=True,
-                             lb=lb, rnd=rnd)
+                             S0=S0, tol=tol, return_fg=True, lb=lb, rnd=rnd)
             if ub < best_dis_R/2:
                 c = c_test
                 rnd_state = rnd.get_state()
