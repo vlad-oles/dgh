@@ -1,6 +1,22 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.1.2 (Dec 27 2023)
+
+### Feature
+
+- Changed the default tolerance for the Frank–Wolfe gap to 1e-16
+- Removed row-stochasticity check after each iteration for extra speed
+
+### Fix
+
+- Fixed issue with last iterations in a restart not counting towards iteration budget
+- Fixed issue with zero iteration budgets when using c='auto'
+
+### Documentation
+
+- Improved readability of the example
+
 ## v0.1.1 (Jul 25 2023)
 
 ### Feature
