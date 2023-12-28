@@ -8,7 +8,7 @@ from .spaces import arrange_distances
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
                       tol=1e-16, max_iter=np.inf, verbose=0):
     """
-    Minimize smoothed distortion σ over the bi-mapping polytope 𝓢.
+    Minimizes smoothed distortion σ over the bi-mapping polytope 𝓢.
 
     :param obj: smoothed distortion σ:𝓢🠒ℝ (function)
     :param grad: ∇σ:𝓢🠒𝓢 (function)
@@ -49,7 +49,7 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
 
 def make_frank_wolfe_solver(X, Y, c, **kwargs):
     """
-    Create Frank-Wolfe solver for minimizing c-smoothed distortion over
+    Creates Frank-Wolfe solver for minimizing c-smoothed distortion over
     the bi-mapping polytope 𝓢.
 
     :param X: distance matrix of X (2d-array)

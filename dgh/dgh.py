@@ -27,8 +27,8 @@ def dis(S, X, Y):
 def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
           lb=0, validate_tri_ineq=False, verbose=0, rnd=None):
     """
-    Find upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g) over
-    the bi-mapping polytope 𝓢 using Frank-Wolfe.
+    Finds am upper bound of dGH(X, Y) by minimizing smoothed dis(R) = dis(f, g)
+    over the bi-mapping polytope 𝓢 using Frank-Wolfe algorithm.
 
     :param X: distance matrix of X (2d-array)
     :param Y: distance matrix of Y (2d-array)

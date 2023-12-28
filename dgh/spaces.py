@@ -4,7 +4,7 @@ from itertools import permutations
 
 def diam(X):
     """
-    Find the diameter of a metric space X.
+    Finds the diameter of a metric space X.
 
     :param X: distance matrix of X (2d-array)
     :return: diameter (float)
@@ -14,7 +14,7 @@ def diam(X):
 
 def rad(X):
     """
-    Find the radius of a metric space X.
+    Finds the radius of a metric space X.
 
     :param X: distance matrix of X (2d-array)
     :return: radius (float)
@@ -38,7 +38,7 @@ def validate_tri_ineq(X):
 
 def arrange_distances(X, Y):
     """
-    Arrange distances of X and Y in block matrices used in the computations.
+    Arranges distances of X and Y in block matrices used in the computations.
 
     :param X: distance matrix of X (2d-array)
     :param Y: distance matrix of Y (2d-array)
