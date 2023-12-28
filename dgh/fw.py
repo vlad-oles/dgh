@@ -1,7 +1,7 @@
 import numpy as np
 from functools import partial
 
-from .mappings import fg_to_R
+from .mappings import is_row_stoch, fg_to_R
 from .spaces import arrange_distances
 
 
@@ -43,8 +43,8 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma,
 
         # Move S towards R by γ, i.e. to (1-γ)S + γR.
         S += gamma * D
-        assert np.allclose(np.sum(S, axis=1), 1), \
-            f'(1-γ)S + γR is not row-stochastic: S={repr(S - gamma * D)}, D={repr(D)}, γ={gamma}'
+        assert is_row_stoch(S), \
+            f'(1-γ)S + γR is not row-stochastic: S={repr(S - gamma * D)}, R={repr(R)}, γ={gamma}'
 
     return S, iter + 1
 
