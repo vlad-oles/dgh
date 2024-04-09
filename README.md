@@ -1,8 +1,8 @@
 # dGH
 
-Given the distance matrices of metric spaces $X$ and $Y$, estimates the Gromov–Hausdorff distance $$d_\text{GH}(X, Y) = \frac{1}{2}\inf_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\\{\big(x, f(x)\big): x \in X\Big\\} \cup \Big\\{\big(g(y), y\big): y \in Y\Big\\}\Bigg),$$ where $$\text{dis}(R) = \sup_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$ is the distortion of a relation $R \subseteq X \times Y$.
+Given the distance matrices of metric spaces $X$ and $Y$, estimates the Gromov–Hausdorff distance $$d_\text{GH}(X, Y) = \frac{1}{2}\min_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\\{\big(x, f(x)\big): x \in X\Big\\} \cup \Big\\{\big(g(y), y\big): y \in Y\Big\\}\Bigg),$$ where $$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$ is the distortion of a relation $R \subseteq X \times Y$.
 
-The distance is estimated from above by minimizing its parametric relaxation whose solutions are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The quadratic relaxation with affine constraints is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n = \max\big\\{|X|, |Y|\big\\}$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
+The distance is estimated from above by solving its parametric relaxation whose minima are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The relaxation is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n = \max\big\\{|X|, |Y|\big\\}$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
 
 A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to minimizing it can be found in [Computing the Gromov–Hausdorff distance using first-order methods](https://arxiv.org/pdf/2307.13660.pdf).
 
@@ -19,7 +19,7 @@ Consider $X$ comprised by the vertices of a $1 \times 10$ rectangle and $Y$ — 
     <img src="https://github.com/vlad-oles/dgh/blob/main/illustration.svg" alt="Illustration of the example" width="300"/>
 </p>
 
-To create their distance matrices (the $(i,j)$-th entry stores the distance between the $i$-th and $j$-th points):
+To create their distance matrices, whose $(i,j)$-th entry stores the distance between the $i$-th and $j$-th points:
 
 ```
 >>> import numpy as np
@@ -73,7 +73,7 @@ Every solution is a mapping pair $(f:X\to Y, g:Y\to X)$. To access the mapping p
 The $i$-th entry in either mapping stores (the index of) the image of its codomain's $i$-th point. For example, here $g(y_3)=x_2$.
 
 ## Relaxation parameter $c>1$
-Explicitly specifying $c$ can improve the performance of the algorithm. Small $c$ makes the relaxation easier to minimize, but its solutions are more likely to deliver the Gromov–Hausdorff distance when $c$ is large.
+Explicitly specifying the relaxation parameter $c$ can improve the performance of the algorithm. Small $c$ makes the relaxation easier to minimize, but its solutions are more likely to deliver the Gromov–Hausdorff distance when $c$ is large.
 
 By default, the method allocates half of the iteration budget to select the best value of $c$ from $1+10^{-4}, 1+10^{-2},\ldots,1+10^8$, and then spends the remaining half on refining the Gromov–Hausdorff distance using this $c$.
 You can specify $c$ explicitly to see if it results in better accuracy and/or to save iterations on the search.
