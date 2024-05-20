@@ -2,9 +2,9 @@
 
 Given the distance matrices of metric spaces $X$ and $Y$, estimates the Gromov–Hausdorff distance $$d_\text{GH}(X, Y) = \frac{1}{2}\min_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\\{\big(x, f(x)\big): x \in X\Big\\} \cup \Big\\{\big(g(y), y\big): y \in Y\Big\\}\Bigg),$$ where $$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$ is the distortion of a relation $R \subseteq X \times Y$.
 
-The distance is estimated from above by solving its parametric relaxation whose minima are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The relaxation is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n = \max\big\\{|X|, |Y|\big\\}$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
+The distance is estimated from above by solving its parametric relaxation whose minima are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The relaxation is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n$ is the total number of points in $X$ and $Y$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
 
-A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to minimizing it can be found in [Computing the Gromov–Hausdorff distance using first-order methods](https://arxiv.org/pdf/2307.13660.pdf).
+A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to minimizing it can be found in [Computing the Gromov–Hausdorff distance using gradient methods](https://arxiv.org/pdf/2307.13660.pdf).
 
 ## Installation
 To install the package from Python Package Index:
@@ -104,10 +104,10 @@ dGH is released under the MIT license.
 ## Research
 To cite dGH, you can use the following:
 <blockquote>
-<p>Oles, V. (2023). Computing the Gromov–Hausdorff distance using first-order methods. <i>arXiv preprint arXiv:2307.13660</i>.</p>
+<p>Oles, V. (2023). Computing the Gromov–Hausdorff distance using gradient methods. <i>arXiv preprint arXiv:2307.13660</i>.</p>
 </blockquote>
 <pre><code>@article{oles2023computing,
-  title={Computing the Gromov--Hausdorff distance using first-order methods},
+  title={Computing the Gromov--Hausdorff distance using gradient methods},
   author={Oles, Vladyslav},
   journal={arXiv preprint arXiv:2307.13660},
   year={2023}
