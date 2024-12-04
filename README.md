@@ -6,7 +6,7 @@ $$d_\text{GH}(X, Y) = \frac{1}{2}\min_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\
 
 where
 
-$$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$
+$$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \left|d_X(x, x') - d_Y(y, y')\right|$$
 
 is the distortion of a relation $R \subseteq X \times Y$.
 
