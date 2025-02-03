@@ -6,13 +6,13 @@ $$d_\text{GH}(X, Y) = \frac{1}{2}\min_{f:X\to Y, g:Y\to X} \text{dis}\Bigg(\Big\
 
 where
 
-$$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \big|d_X(x, x') - d_Y(y, y')\big|$$
+$$\text{dis}(R) = \max_{(x, y), (x', y') \in R} \left|d_X(x, x') - d_Y(y, y')\right|$$
 
 is the distortion of a relation $R \subseteq X \times Y$.
 
-The distance is estimated from above by solving its parametric relaxation whose minima are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The relaxation is minimized using conditional gradient descent in $O(n^3)$ time per iteration, where $n$ is the total number of points in $X$ and $Y$. The retrieved minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
+The distance is estimated from above by solving its parametric relaxation whose minima are guaranteed to deliver $d_\text{GH}(X, Y)$ for a sufficiently large value of the parameter $c>1$. The indefinite quadratic relaxation is solved using conditional gradient descent in $O(n^3)$ time per iteration, where $n$ is the total number of points in $X$ and $Y$. The retrieved approximate minimum is an upper bound of (and in many cases equals to) the Gromov–Hausdorff distance $d_\text{GH}(X, Y)$.
 
-A detailed description of the relaxation, its optimality guarantees and optimization landscape, and the approach to minimizing it can be found in [Computing the Gromov–Hausdorff distance using gradient methods](https://arxiv.org/pdf/2307.13660.pdf).
+A detailed description of the relaxation (including its optimality guarantees, optimization landscape, and the minimization algorithm), along with guidance for selecting the relaxation parameter $c$, can be found in [Computing the Gromov–Hausdorff distance using gradient methods](https://arxiv.org/pdf/2307.13660.pdf).
 
 ## Installation
 To install the package from Python Package Index:
