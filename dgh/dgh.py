@@ -55,7 +55,12 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
     assert (X == X.T).all() and (Y == Y.T).all(), 'distance matrices are not symmetric'
     if validate_tri_ineq:
         assert validate_tri_ineq(X) and validate_tri_ineq(Y),\
-            "triangle inequality doesn't hold"
+            'triangle inequality does not hold'
+
+    # Ensure existence of a positive distance.
+    diam_X, diam_Y = map(diam, [X, Y])
+    d_max = max(diam_X, diam_Y)
+    assert d_max > 0, 'at least one space must have a non-trivial distance'
 
     # Initialize.
     n, m = len(X), len(Y)
@@ -63,7 +68,6 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
     best_dis_R = np.inf
 
     # Update lower bound using the radius and diameter differences.
-    diam_X, diam_Y = map(diam, [X, Y])
     rad_X, rad_Y = map(rad, [X, Y])
     lb = max(lb, abs(diam_X - diam_Y)/2, abs(rad_X - rad_Y)/2)
 
@@ -96,7 +100,6 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
             print(f'spent {search_iter_budget} iterations to choose c={c}')
 
     # Scale all distances to avoid overflow.
-    d_max = max(diam_X, diam_Y)
     X, Y = map(lambda Z: Z.copy() / d_max, [X, Y])
     lb /= d_max
 
