@@ -106,6 +106,8 @@ To specify $c$ explicitly:
 ## Contributing
 If you found a bug or want to suggest an enhancement, you can create a [GitHub Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue). Alternatively, you can email vlad.oles (at) proton (dot) me.
 
+Once approved, you can follow steps in CONTRIBUTING.md to contribute the changes. 
+
 ## License
 dGH is released under the MIT license.
 
