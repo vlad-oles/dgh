@@ -1,4 +1,5 @@
-import pytest
+import os
+from contextlib import redirect_stdout
 import numpy as np
 from scipy import spatial as sp
 import dgh
@@ -43,3 +44,11 @@ class TestModifiedGromovHausdorff:
 
         assert ub == 0
         assert f == g == list(range(len(self.Cloud)))
+
+    def test_custom_params(self):
+        with open(os.devnull, 'w') as devnull:
+            with redirect_stdout(devnull):
+                ub = dgh.upper(self.Triangle, self.Triangle, rnd=self.rnd,
+                               c=1e5, iter_budget=50, verbose=3)
+
+        assert ub == 0
