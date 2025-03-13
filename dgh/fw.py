@@ -29,7 +29,9 @@ def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_alpha,
 
         # Find α ∈ [0, 1] defining how much to go in the decided direction.
         global_alpha = minimize_obj_wrt_alpha(S, D)
-        critical_alphas = {0, 1, global_alpha}
+        critical_alphas = {0, 1}
+        if 0 < global_alpha < 1:
+            critical_alphas.add(global_alpha)
         alpha = min(critical_alphas, key=lambda x: obj(S + x*D))
 
         if verbose > 2:
