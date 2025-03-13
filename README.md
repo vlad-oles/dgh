@@ -19,6 +19,12 @@ To install the package from Python Package Index:
 
 ```$ pip install dgh```
 
+You also need to install `jax` because `dgh` relies on JAX for optimized matrix computations:
+
+```$ pip install jax```
+
+Make sure to choose the version of JAX that makes use of your hardware accelerator. For example, if you have a CUDA GPU, replace `jax` with `jax[gpu]` in the above. 
+ 
 ## Quickstart
 
 Consider $X$ comprised by the vertices of a $1 \times 10$ rectangle and $Y$ — by the vertices of a unit equilateral triangle together with a point that is 10 away from each of them (see illustration).
