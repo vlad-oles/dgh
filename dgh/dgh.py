@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 from .mappings import rnd_S, center, S_to_fg, S_to_R, is_in_bimapping_polytope
 from .fw import make_frank_wolfe_solver
@@ -64,7 +65,7 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
 
     # Initialize.
     n, m = len(X), len(Y)
-    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+    rnd = rnd or np.random.default_rng(seed=DEFAULT_SEED)
     best_dis_R = np.inf
 
     # Update lower bound using the radius and diameter differences.
@@ -82,19 +83,13 @@ def upper(X, Y, c='auto', iter_budget=100, S0=None, tol=1e-16, return_fg=False,
         iter_budget -= search_iter_budget
 
         # Select c resulting in the smallest upper bound.
-        init_rnd_state = rnd.get_state()
         for c_test in C_SEARCH_GRID:
-            rnd.set_state(init_rnd_state)
             ub, f, g = upper(X, Y, c=c_test, iter_budget=search_iter_budget_per_c,
                              S0=S0, tol=tol, return_fg=True, lb=lb, rnd=rnd)
             if ub < best_dis_R/2:
                 c = c_test
-                rnd_state = rnd.get_state()
                 best_f, best_g = f, g
                 best_dis_R = 2*ub
-
-        # Set random number generator to after the search iterations.
-        rnd.set_state(rnd_state)
 
         if verbose > 0:
             print(f'spent {search_iter_budget} iterations to choose c={c}')

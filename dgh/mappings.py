@@ -12,7 +12,7 @@ def rnd_R(n, m, rnd=None):
     :param rnd: NumPy random state
     :return: mapping pair R ∈ 𝓡  (2d-array)
     """
-    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+    rnd = rnd or np.random.default_rng(seed=DEFAULT_SEED)
 
     R = np.zeros(n+m, n+m)
     R[np.arange(n), rnd.choice(m, n)] = 1
@@ -30,16 +30,17 @@ def rnd_S(n, m, rnd=None):
     :param rnd: NumPy random state
     :return: soft mapping pair S ∈ 𝓢  (2d-array)
     """
-    rnd = rnd or np.random.RandomState(DEFAULT_SEED)
+    rnd = rnd or np.random.default_rng(seed=DEFAULT_SEED)
     nxn_zeros, mxm_zeros = (np.zeros((size, size)) for size in [n, m])
 
     # Generate random n×m and m×n row-stochastic matrices.
-    F_soft, G_soft = (rnd.rand(size1, size2)
+    F_soft, G_soft = (rnd.random(size=(size1, size2))
                         for size1, size2 in [(n, m), (m, n)])
     for soft in (F_soft, G_soft):
         soft /= soft.sum(axis=1)[:, None]
 
-    S = np.block([[F_soft, nxn_zeros], [mxm_zeros, G_soft]])
+    S = np.block([[F_soft, nxn_zeros],
+                  [mxm_zeros, G_soft]])
 
     return S
 

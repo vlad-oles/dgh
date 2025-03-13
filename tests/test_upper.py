@@ -6,7 +6,7 @@ import dgh
 
 
 class TestModifiedGromovHausdorff:
-    rnd = np.random.RandomState(dgh.DEFAULT_SEED)
+    rnd = np.random.default_rng(seed=dgh.DEFAULT_SEED)
 
     # Distance matrix of a singleton.
     Singleton = np.array([[0]])
@@ -18,7 +18,7 @@ class TestModifiedGromovHausdorff:
     Triangle += Triangle.T
 
     # Distance matrix of 3d points cloud from standard normal distribution.
-    coords_3d = rnd.randn(100, 2)
+    coords_3d = rnd.standard_normal(size=(100, 2))
     Cloud = sp.distance.cdist(coords_3d, coords_3d)
 
     def test_triangle_vs_singleton(self):
