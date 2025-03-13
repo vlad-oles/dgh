@@ -1,9 +1,9 @@
 import numpy as np
 from functools import partial
+import jax
 
 from .mappings import is_row_stoch, fg_to_R
 from .spaces import arrange_distances
-
 
 def solve_frank_wolfe(obj, grad, find_descent_direction, minimize_obj_wrt_gamma, S0,
                       tol=1e-16, max_iter=np.inf, verbose=0):
@@ -57,15 +57,25 @@ def make_frank_wolfe_solver(X, Y, c, **kwargs):
     :param c: exponentiation base ∈ (1, ∞) for smoothing the distortion (float)
     :return: solver
     """
+            
     n, m = len(X), len(Y)
+    X__Y, Y__X, _Y_X = arrange_distances(X, Y)
 
+    # precompute the exponentials
+    c_Y_X, c__Y_X = c**_Y_X, c**-_Y_X
+    c_X__Y, c__X__Y = c**X__Y, c**-X__Y
+    c_Y__X, c__Y__X = c**Y__X, c**-Y__X
+
+    @jax.jit
+    def jax_matrix_multiply(c_Y_X, c__Y_X, c_X__Y, c__X__Y, c_Y__X, c__Y__X, S):
+        return (c__Y_X @ S @ c_Y_X + c_Y_X @ S @ c__Y_X).T + \
+           c__X__Y @ S @ c_Y__X + c_X__Y @ S @ c__Y__X
+    
     # Define auxiliary function that is a component in the objective and its gradient.
     def dot_multiplicand(S):
-        X__Y, Y__X, _Y_X = arrange_distances(X, Y)
-        c_Y_X, c__Y_X = c**_Y_X,  c**-_Y_X
 
-        return (c__Y_X @ S @ c_Y_X + c_Y_X @ S @ c__Y_X).T + \
-            c**-X__Y @ S @ c**Y__X + c**X__Y @ S @ c**-Y__X
+        # use precomputed values and precompiled jax function instead.
+        return jax_matrix_multiply(c_Y_X, c__Y_X, c_X__Y, c__X__Y, c_Y__X, c__Y__X, S)
 
     # Smooth distortion σ as the objective.
     def obj(S):
