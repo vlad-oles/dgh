@@ -65,14 +65,16 @@ def make_frank_wolfe_solver(X, Y, c, **kwargs):
     exp_Y__X, exp_neg_Y__X = c**Y__X, c**-Y__X
 
     @jax.jit
-    def jax_matrix_multiply(S):
+    def jax_matrix_multiply(S, exp__Y_X, exp_neg__Y_X, exp_X__Y, exp_neg_X__Y,
+                            exp_Y__X, exp_neg_Y__X):
         return (exp_neg__Y_X @ S @ exp__Y_X + exp__Y_X @ S @ exp_neg__Y_X).T + \
            exp_neg_X__Y @ S @ exp_Y__X + exp_X__Y @ S @ exp_neg_Y__X
     
     # Define auxiliary function that is a component in the objective and its gradient.
     def dot_multiplicand(S):
         # Use precomputed values and precompiled jax function.
-        return jax_matrix_multiply(S)
+        return jax_matrix_multiply(S, exp__Y_X, exp_neg__Y_X, exp_X__Y, exp_neg_X__Y,
+                            exp_Y__X, exp_neg_Y__X)
 
     # Smooth distortion σ as the objective.
     def obj(S):
