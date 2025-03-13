@@ -1,6 +1,24 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.2.0 (Mar 13 2025)
+
+### Feature
+
+- Optimized Frank–Wolfe solver using JAX
+- Added unit tests
+- Allowed imports of functions from mappings.py
+
+### Fix
+
+- Forbade comparing two singleton spaces
+- Replaced deprecated NumPy's RandomState with Generator
+
+### Documentation
+
+- Added relaxation specifics in README.md
+- Added instructions for contributors CONTRIBUTING.md
+- Added list of contributors CONTRIBUTORS.md
 
 ## v0.1.3 (Dec 28 2023)
 
